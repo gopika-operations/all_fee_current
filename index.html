@@ -2,7 +2,7 @@
 <html lang="vi">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Tra cứu doanh thu</title>
+<title>Tra cứu doanh thu hôm nay</title>
 
 <style>
   :root{
@@ -125,12 +125,12 @@
     <div class="row">
       <div class="field">
         <input id="driverId" inputmode="numeric" placeholder="SĐT / ID">
-        <div class="help">Nhập số điện thoại hoặc ID đã đăng ký</div>
+        <div class="help">Nhập số điện thoại đăng kí app đầu 84</div>
       </div>
 
       <div class="field">
         <input id="driverName" placeholder="Họ và tên">
-        <div class="help">Nhập đúng họ tên của bạn</div>
+        <div class="help">Nhập đúng họ và tên của bạn</div>
       </div>
 
       <div class="action">
@@ -202,7 +202,7 @@
       const data = await r.json();
 
       if(!data.ok){
-        msg.textContent = data.error || 'Không tra được dữ liệu.';
+        msg.textContent = data.error || 'Hiện tại chưa ghi nhận tx hoàn thành đơn hàng trong ngày. Vui lòng thử lại sau';
         if (data.lastUpdate) {
           statusEl.textContent = `Cập nhật gần nhất: ${data.lastUpdate}`;
         }
