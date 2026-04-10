@@ -140,7 +140,12 @@
 
     <div id="status" class="status"></div>
     <div id="msg" class="err"></div>
-    <div id="result"></div>
+<div id="result"></div>
+
+<div id="dailyWrap" style="display:none;margin-top:18px;">
+  <h3 style="margin:0 0 12px;font-size:18px;">Doanh thu theo ngày</h3>
+  <div id="dailyList" class="daily-grid"></div>
+</div>
   </div>
 </div>
 
@@ -162,6 +167,30 @@
       "'":'&#39;'
     }[c]));
   }
+
+  function renderDaily(daily){
+  if(!daily || !daily.length){
+    dailyWrap.style.display = 'none';
+    dailyList.innerHTML = '';
+    return;
+  }
+
+  let html = '';
+  daily.forEach(item => {
+    const feeText = String(item.fee ?? '').trim();
+    if (!String(item.date ?? '').trim()) return;
+
+    html += `
+      <div class="daily-card">
+        <div class="daily-date">${escapeHtml(item.date)}</div>
+        <div class="daily-fee">${escapeHtml(feeText || '0')}</div>
+      </div>
+    `;
+  });
+
+  dailyList.innerHTML = html;
+  dailyWrap.style.display = html ? '' : 'none';
+}
 
   function setBusy(b){
     btn.disabled = b;
@@ -186,9 +215,11 @@
     const id = $('driverId').value.replace(/\s+/g,'').trim();
     const name = $('driverName').value.trim();
 
-    msg.textContent = '';
-    out.innerHTML = '';
-    setBusy(true);
+    msg.textContent=''; 
+out.innerHTML=''; 
+dailyWrap.style.display = 'none';
+dailyList.innerHTML = '';
+setBusy(true);
 
     if(!id || !name){
       msg.textContent = 'Vui lòng nhập đủ SĐT / ID và họ tên.';
@@ -224,6 +255,7 @@
 
       html += '</table>';
       out.innerHTML = html;
+      renderDaily(data.daily || []);
 
     }catch(e){
       msg.textContent = 'Lỗi kết nối. Vui lòng thử lại.';
