@@ -115,6 +115,56 @@
   }
 
   td{color:#e6edf7}
+  .daily-scroll{
+  width:100%;
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+}
+
+.daily-grid{
+  display:grid;
+  grid-template-columns:repeat(7, minmax(130px, 1fr));
+  gap:12px;
+  min-width:980px;
+  margin-top:8px;
+}
+
+.daily-card{
+  background:var(--field);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:12px 14px;
+  min-height:120px;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-start;
+}
+
+.daily-weekday{
+  color:var(--muted);
+  font-size:13px;
+  margin-bottom:6px;
+  font-weight:600;
+}
+
+.daily-date{
+  color:var(--text);
+  font-size:15px;
+  margin-bottom:10px;
+  font-weight:600;
+}
+
+.daily-fee{
+  font-size:22px;
+  font-weight:700;
+  color:var(--text);
+  line-height:1.2;
+  min-height:28px;
+}
+
+.daily-fee.empty{
+  color:var(--muted);
+}
 </style>
 
 <body>
@@ -144,7 +194,9 @@
 
 <div id="dailyWrap" style="display:none;margin-top:18px;">
   <h3 style="margin:0 0 12px;font-size:18px;">Doanh thu theo ngày</h3>
-  <div id="dailyList" class="daily-grid"></div>
+  <div class="daily-scroll">
+    <div id="dailyList" class="daily-grid"></div>
+  </div>
 </div>
   </div>
 </div>
@@ -157,7 +209,8 @@
   const msg = $('msg');
   const out = $('result');
   const statusEl = $('status');
-
+  const dailyWrap = $('dailyWrap');
+  const dailyList = $('dailyList');
   function escapeHtml(s){
     return String(s ?? '').replace(/[&<>"']/g, c => ({
       '&':'&amp;',
@@ -168,7 +221,36 @@
     }[c]));
   }
 
-  function renderDaily(daily){
+function parseVNDate(dateStr){
+  const s = String(dateStr || '').trim();
+  const m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (!m) return null;
+
+  const day = Number(m[1]);
+  const month = Number(m[2]) - 1;
+  const year = Number(m[3]);
+
+  return new Date(year, month, day);
+}
+
+function getWeekdayVi(dateStr){
+  const d = parseVNDate(dateStr);
+  if (!d) return '';
+
+  const days = [
+    'Chủ nhật',
+    'Thứ hai',
+    'Thứ ba',
+    'Thứ tư',
+    'Thứ năm',
+    'Thứ sáu',
+    'Thứ bảy'
+  ];
+
+  return days[d.getDay()];
+}
+
+function renderDaily(daily){
   if(!daily || !daily.length){
     dailyWrap.style.display = 'none';
     dailyList.innerHTML = '';
@@ -176,14 +258,19 @@
   }
 
   let html = '';
+
   daily.forEach(item => {
-    const feeText = String(item.fee ?? '').trim();
-    if (!String(item.date ?? '').trim()) return;
+    const dateText = String(item.date ?? '').trim();
+    const feeText  = String(item.fee ?? '').trim();
+    if (!dateText) return;
 
     html += `
       <div class="daily-card">
-        <div class="daily-date">${escapeHtml(item.date)}</div>
-        <div class="daily-fee">${escapeHtml(feeText || '0')}</div>
+        <div class="daily-weekday">${escapeHtml(getWeekdayVi(dateText))}</div>
+        <div class="daily-date">${escapeHtml(dateText)}</div>
+        <div class="daily-fee ${feeText ? '' : 'empty'}">
+          ${feeText ? escapeHtml(feeText) : '&nbsp;'}
+        </div>
       </div>
     `;
   });
